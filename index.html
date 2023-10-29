@@ -13,7 +13,8 @@
             <a class="navbar-brand" href="#">My Vue</a>
             <ul class="navbar-nav me-auto mb-lg-0">
                 <li v-for="link in links" class="nav-item">
-                    <a class="nav-link" aria-current="page" href="#">{{ link }}</a>
+                    <!-- short hand for v-bind is ":" -->
+                    <a class="nav-link" aria-current="page" v-bind:href="link.url">{{ link.text }}</a>
                 </li>
             </ul>
         </div>
@@ -27,7 +28,11 @@
         Vue.createApp({
             data () {
                 return {
-                    links: ['Home 1', 'About 2', 'Contact 3']
+                    links: [
+                        {text: 'Home', url: 'index.html'}, 
+                        {text: 'About', url: 'about.html'}, 
+                        {text: 'Contact', url: 'contact.html'}
+                    ]
                 };
             }
         }).mount('nav')
