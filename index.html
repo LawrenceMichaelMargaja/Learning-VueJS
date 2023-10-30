@@ -1,113 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vue Basics</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-</head>
-<body>
-    <nav 
-        class="navbar navbar-expand-lg"
-        :class="[`navbar-${theme}`, `bg-${theme}`,'navbar', 'navbar-expand-lg']"
-    >
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">My Vue</a>
-            <ul class="navbar-nav me-auto mb-lg-0">
-                <li v-for="(page, index) in pages" class="nav-item" :key="index">
-                    <!-- short hand for v-bind is ":" -->
-                    <a 
-                        class="nav-link" 
-                        :class="{active: activePage === index }"
-                        aria-current="page" 
-                        v-bind:href="page.link.url"
-                        @click.prevent="activePage = index"
-                    >
-                        {{ page.link.text }}
-                    </a>
-                </li>
-            </ul>
-            <form class="d-flex">
-                <button 
-                    class="btn btn-primary"
-                    @click.prevent="changeTheme()"    
-                >
-                    Toggle Navbar
-                </button>
-            </form>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Simple Vue Test</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    </head>
+    <body>
+        <div id="appID">
+            <navbar :pages="pages" :activePage="activePage" @update-active="activePage = $event"></navbar>
+            <page-viewer :page="pages[activePage]"></page-viewer>
         </div>
-    </nav>
+        
 
-    <page-viewer
-        :page="pages[activePage]"
-    />
+        <script>
+            const { createApp } = Vue;
 
-    <script>
-        let app = Vue.createApp({
-            // computed: {
-            //     navbarClasses() {
-            //         return {
-            //             'navbar-light': !this.useDarkNavbar,
-            //             'bg-light': !this.useDarkNavbar, 
-            //             'navbar-dark': this.useDarkNavbar,
-            //             'bg-dark': this.useDarkNavbar,
-            //         }     
-            //     },
-            // },
-            // this is the state of our app
-            data() {
-                return {
-                    activePage: 0,
-                    theme: 'light',
-                    // useDarkNavbar: false,
-                    pages: [
-                        {
-                            link: {text: 'Home', url: 'index.html'},
-                            pageTitle: 'Home Page',
-                            pageContent: 'This is the Home Page'
-                        },
-                        {
-                            link: {text: 'About', url: 'about.html'},
-                            pageTitle: 'About Page',
-                            pageContent: 'This is the About Page'
-                        },
-                        {
-                            link: {text: 'Content', url: 'content.html'},
-                            pageTitle: 'Content Page',
-                            pageContent: 'This is the Content Page'
-                        }
-                    ]
-                }
-            },
-            methods: {
-                changeTheme() {
-                    let theme = 'light';
-                    if(this.theme === 'light') {
-                        theme = 'dark';
+            // const Navbar = {
+            //     template: `<div>Navbar Component</div>`
+            // };
+
+            const Navbar = {
+                props: ['pages', 'activePage'],
+                data() {
+                    return {
+                        theme: 'light'
+                    };
+                },
+                template: `
+                    <nav :class="['navbar', 'navbar-expand-lg', theme === 'light' ? 'navbar-light bg-light' : 'navbar-dark bg-dark']">
+                        <div class="container-fluid">
+                            <a class="navbar-brand" href="#">My Vue</a>
+                            <ul class="navbar-nav me-auto mb-lg-0">
+                                <li v-for="(page, index) in pages" :key="index" class="nav-item">
+                                    <a 
+                                        class="nav-link" 
+                                        :class="{active: activePage === index }"
+                                        aria-current="page" 
+                                        href="#"
+                                        @click.prevent="updateActive(index)"
+                                    >
+                                        {{ page.link.text }}
+                                    </a>
+                                </li>
+                            </ul>
+                            <button class="btn btn-primary" @click="toggleTheme">Toggle Theme</button>
+                        </div>
+                    </nav>
+                `,
+                methods: {
+                    toggleTheme() {
+                        this.theme = this.theme === 'light' ? 'dark' : 'light';
+                    },
+                    updateActive(index) {
+                        this.$emit('update-active', index);
                     }
-
-                    this.theme = theme;
                 }
-            }
-        });
-        
-        // conventions to follow for using components
-        // 1. name must be in lowercase
-        // 2. name should not be an actual html element
-        // 3. 2nd argument is the options object
-        // 4. In the props option, the strings MUST use camelcase. Snakecase does not work.
-        app.component('page-viewer', {
-            props: ['page'],
-            template: `
-            <div class="container">
-                <h1>{{page.pageTitle}}</h1>
-                <p>{{page.pageContent}}</p>
-            </div> 
-            `
-        })
-        
-        app.mount('body');
-    </script>
-</body>
+            };
+
+
+
+            // const Navbar = {
+            //     props: ['pages'],
+            //     template: `
+            //         <div>
+            //             <ul>
+            //                 <li v-for="page in pages">
+            //                     <a href="#">{{ page.link.text }}</a>
+            //                 </li>
+            //             </ul>
+            //         </div>
+            //     `
+            // };
+
+
+            const PageViewer = {
+                props: ['page'],
+                template: `
+                    <div class="container mt-5">
+                        <h1>{{page.pageTitle}}</h1>
+                        <p>{{page.pageContent}}</p>
+                    </div> 
+                `
+            };
+
+
+            const app = createApp({
+                data() {
+                    return {
+                        activePage: 0,
+                        pages: [
+                            {
+                                link: {text: 'Home', url: 'index.html'},
+                                pageTitle: 'Home Page',
+                                pageContent: 'This is the Home Page'
+                            },
+                            {
+                                link: {text: 'About', url: 'about.html'},
+                                pageTitle: 'About Page',
+                                pageContent: 'This is the About Page'
+                            },
+                            {
+                                link: {text: 'Content', url: 'content.html'},
+                                pageTitle: 'Content Page',
+                                pageContent: 'This is the Content Page'
+                            }
+                        ]
+                    }
+                },
+                components: {
+                    Navbar,
+                    PageViewer
+                },
+            });
+
+            app.mount('#appID');
+        </script>
+    </body>
 </html>
